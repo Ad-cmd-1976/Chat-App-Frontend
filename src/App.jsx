@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
@@ -7,17 +7,17 @@ import LoginPage from './pages/LoginPage'
 import SettingsPage from './pages/SettingsPage'
 import ProfilePage from './pages/ProfilePage'
 import { userAuthStore } from './store/userAuthStore'
+import { useThemeStore } from './store/useThemeStore'
 import {Loader} from 'lucide-react'
+import {Toaster} from 'react-hot-toast'
 import './App.css'
 
 function App() {
-  const {authUser,checkAuth,isCheckingAuth}=userAuthStore();
-
-  useEffect(()=>{
+  const {authUser, checkAuth, isCheckingAuth} = userAuthStore();
+  const {theme} = useThemeStore();
+  useEffect(() => {
     checkAuth();
-  },[checkAuth])
-
-  console.log({authUser});
+  }, [checkAuth]);
 
   if(isCheckingAuth && !authUser){
     return(
@@ -26,18 +26,23 @@ function App() {
       </div>
     )
   }
+
   return (
-    <>
+    <div data-theme={theme} className='flex flex-col min-h-screen'>
       <Navbar />
-      <Routes>
-        <Route path='/' element={authUser?<HomePage/>:<Navigate to="/login"/>}/>
-        <Route path='/signup' element={!authUser?<SignUpPage/>:<Navigate to="/"/>}/>
-        <Route path='/login' element={!authUser?<LoginPage/>:<Navigate to="/"/>}/>
-        <Route path='/settings' element={<SettingsPage/>}/>
-        <Route path='/profile' element={authUser?<ProfilePage/>:<Navigate to="/login"/>}/>
-      </Routes>
-    </>
+      <main className='flex-grow pt-16'>
+        <Routes>
+          <Route path='/' element={authUser ? <HomePage/> : <Navigate to="/login"/>}/>
+          <Route path='/signup' element={!authUser ? <SignUpPage/> : <Navigate to="/"/>}/>
+          <Route path='/login' element={!authUser ? <LoginPage/> : <Navigate to="/"/>}/>
+          <Route path='/settings' element={<SettingsPage/>}/>
+          <Route path='/profile' element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}/>
+        </Routes>
+      </main>
+      <Toaster />
+    </div>
   )
 }
 
-export default App
+export default App;
+

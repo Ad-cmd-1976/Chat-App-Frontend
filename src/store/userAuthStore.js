@@ -1,5 +1,6 @@
 import {create} from "zustand";
 import { axiosInstance } from "../lib/axios";
+import toast from 'react-hot-toast';
 
 export const userAuthStore=create((set)=>({
     authUser:null,
@@ -20,6 +21,63 @@ export const userAuthStore=create((set)=>({
         }
         finally{
             set({isCheckingAuth:false});
+        }
+    },
+
+    signup:async(formData)=>{
+        set({isSigningUp:true});
+        try{
+            const res=await axiosInstance.post('/auth/signup',formData);
+            set({authUser:res.data});
+            toast.success("Account Created Successfully!");
+        }
+        catch(error){
+            toast.error(error.response.data.message);
+        }
+        finally{
+            set({isSigningUp:false});
+        }
+    },
+
+    login:async (formData)=>{
+        set({isLoggingIn:true});
+        try{
+            const res=await axiosInstance.post('/auth/login',formData);
+            set({authUser:res.data});
+            toast.success("Logged in Successfully!");
+        }
+        catch(error){
+            toast.error(error.response.data.message);
+        }
+        finally{
+            set({isLoggingIn:false});
+        }
+    },
+
+    logout:async()=>{
+        try{
+            await axiosInstance.post('/auth/logout');
+            set({authUser:null});
+            toast.success("Logged Out Successfully!");
+        }
+        catch(error){
+            toast.error(error.response.data.message);
+        }
+    },
+
+    updateProfile:async (data)=>{
+        set({isUpdatingProfile:true});
+        try{
+            const res=await axiosInstance.put('/auth/update-profile',data);
+            set({authUser:res.data});
+            toast.success("Profile Updated Successfully!");
+        }
+        catch(error){
+            console.log("Error in updateProfile function");
+            toast.error(error.response.data.message);
+        }
+        finally{
+            set({isUpdatingProfile:false})
         }
     }
 }))
